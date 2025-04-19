@@ -1,0 +1,21 @@
+{
+  "hosting": {
+    "public": "frontend",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+  // Add configuration for Cloud Functions if deploying backend here too
+  // "functions": {
+  //   "source": "backend",
+  //   "runtime": "python311" // Choose appropriate runtime
+  // }
+} 

@@ -1,0 +1,5 @@
+{
+  "projects": {
+    "default": "your-firebase-project-id" // TODO: Replace with your actual Firebase project ID
+  }
+} 

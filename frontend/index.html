@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#317EFB"/>
+    <title>Your Study Buddy</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="images/icons/icon-192x192.png"> <!-- Placeholder -->
+</head>
+<body>
+    <header>
+        <h1>Your Study Buddy</h1>
+        <nav>
+            <!-- Navigation links can go here -->
+        </nav>
+        <div id="auth-container">
+            <!-- Auth buttons will be dynamically updated -->
+            <span id="user-info"></span>
+            <button id="auth-button">Login</button>
+        </div>
+    </header>
+
+    <main id="app-content">
+        <!-- Content changes based on auth state -->
+        <div id="logged-out-view">
+             <h2>Welcome!</h2>
+             <p>Please log in or sign up to start your personalized learning experience.</p>
+        </div>
+
+        <div id="logged-in-view" style="display: none;"> <!-- Initially hidden -->
+            <h2>Your Dashboard</h2>
+            <p>Ready to start learning?</p>
+
+            <section id="quiz-generator">
+                <h3>Generate a New Quiz</h3>
+                <label for="subject">Subject:</label>
+                <select id="subject" name="subject">
+                    <option value="Math">Math</option>
+                    <option value="Science">Science</option>
+                    <option value="English">English</option>
+                    <option value="History">History</option>
+                    <!-- TODO: Populate dynamically later? -->
+                </select>
+
+                <label for="topic">Topic:</label>
+                <input type="text" id="topic" name="topic" placeholder="e.g., Algebra Basics, Cell Biology" required>
+
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty" name="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+
+                <button id="generate-quiz-btn">Generate Quiz</button>
+            </section>
+
+            <section id="quiz-display" style="display: none;">
+                <h3>Quiz Time!</h3>
+                <div id="quiz-details"></div> <!-- Subject, Topic -->
+                <div id="quiz-questions"></div>
+                <button id="submit-quiz-btn" style="display: none;">Submit Quiz</button>
+                <div id="quiz-results"></div>
+            </section>
+
+            <hr style="margin: 2rem 0;">
+
+            <section id="learning-path-generator">
+                <h3>Generate a Learning Path</h3>
+                <label for="lp-subject">Subject:</label>
+                <select id="lp-subject" name="lp-subject">
+                    <option value="Math">Math</option>
+                    <option value="Science">Science</option>
+                    <option value="English">English</option>
+                    <option value="History">History</option>
+                    <!-- TODO: Keep consistent with quiz subjects -->
+                </select>
+
+                <label for="lp-goal">Learning Goal:</label>
+                <input type="text" id="lp-goal" name="lp-goal" placeholder="e.g., Understand Newton's Laws, Write a persuasive essay" style="width: 80%;" required>
+                
+                <!-- Optional: Add knowledge level input if desired -->
+                <!-- <label for="lp-knowledge">Current Knowledge:</label>
+                <select id="lp-knowledge" name="lp-knowledge">
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                </select> -->
+
+                <button id="generate-lp-btn">Generate Path</button>
+            </section>
+
+            <section id="learning-path-display" style="display: none;">
+                <h3>Your Learning Path</h3>
+                <div id="lp-details"></div> <!-- Subject, Goal -->
+                <div id="lp-steps"></div>
+            </section>
+            
+            <hr style="margin: 2rem 0;">
+
+            <section id="content-library">
+                <h3>Content Library</h3>
+                <label for="content-subject">Subject:</label>
+                <select id="content-subject" name="content-subject">
+                    <option value="" disabled selected>Select Subject</option>
+                    <option value="Math">Math</option>
+                    <option value="Science">Science</option>
+                    <option value="English">English</option>
+                    <option value="History">History</option>
+                    <!-- TODO: Populate dynamically -->
+                </select>
+
+                <label for="content-topic">Topic:</label>
+                <select id="content-topic" name="content-topic" disabled>
+                    <option value="" disabled selected>Select Topic</option>
+                    <!-- TODO: Populate based on selected subject -->
+                </select>
+
+                <button id="view-content-btn" disabled>View Content</button>
+            </section>
+            
+            <section id="content-display" style="display: none;">
+                <h3 id="content-title"></h3>
+                <div id="content-body"></div>
+            </section>
+
+            <hr style="margin: 2rem 0;">
+
+            <section id="progress-display">
+                <h3>Your Progress</h3>
+                <button id="view-progress-btn">View My Progress</button>
+                <div id="progress-list" style="margin-top: 1rem; display: none;">
+                    <!-- Progress items will be loaded here -->
+                    <p>Loading progress...</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Auth Modal (Hidden by default) -->
+    <div id="auth-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeAuthModal()">&times;</span>
+            <h2>Login or Sign Up</h2>
+            <div id="email-password-auth">
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button id="email-signin-button">Sign In</button>
+                <button id="email-signup-button">Sign Up</button>
+            </div>
+            <hr>
+            <button id="google-signin-button">Sign in with Google</button>
+            <p id="auth-error" style="color: red;"></p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Your Study Buddy</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <!-- Using Firebase v9+ modular SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        // Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        // import { getDatabase } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+        // Your web app's Firebase configuration (from firebase-config.js)
+        // TODO: Replace with your actual Firebase config values
+        const firebaseConfig = {
+          apiKey: "YOUR_API_KEY",
+          authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+          databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+          projectId: "YOUR_PROJECT_ID",
+          storageBucket: "YOUR_PROJECT_ID.appspot.com",
+          messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+          appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        // const database = getDatabase(app); // Initialize if needed
+        const googleProvider = new GoogleAuthProvider();
+
+        // Make auth object globally accessible or pass to app.js
+        window.firebaseAuth = { auth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, googleProvider };
+    </script>
+
+    <script type="module" src="js/app.js"></script> <!-- Changed to type module -->
+</body>
+</html> 

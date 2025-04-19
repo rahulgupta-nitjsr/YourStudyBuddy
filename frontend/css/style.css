@@ -1,0 +1,365 @@
+/* Reset and Basic Styling */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f8f9fa;
+    color: #343a40;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+button {
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+select, input[type="text"], input[type="email"], input[type="password"] {
+    padding: 0.6rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1rem;
+    margin-bottom: 0.5rem; /* Add some spacing */
+}
+
+label {
+    margin-right: 0.5rem;
+    margin-bottom: 0.2rem;
+    display: inline-block; /* Ensure label aligns well */
+}
+
+section {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+h2, h3 {
+    color: #0056b3; /* A slightly darker blue */
+    margin-bottom: 1rem;
+}
+
+hr {
+    margin: 2rem 0;
+    border: 0;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Header */
+header {
+    background: #007bff; /* Primary blue color */
+    color: #fff;
+    padding: 0.8rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    padding-left: 0; /* Remove previous padding */
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+#auth-container {
+    padding-right: 0; /* Remove previous padding */
+}
+
+#auth-container button {
+    padding: 0.5rem 1rem;
+    background-color: #0056b3; /* Darker blue */
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+#auth-container button:hover {
+    background-color: #004085; /* Even darker blue on hover */
+}
+
+#user-info {
+    margin-right: 10px;
+    font-size: 0.9em;
+}
+
+/* Main Content */
+main {
+    padding: 1.5rem;
+    flex-grow: 1; /* Ensure main content takes available space */
+}
+
+/* Logged-in/out Views */
+#logged-out-view p {
+    font-size: 1.1rem;
+}
+
+/* Generator Sections (Quiz, LP, Content) */
+#quiz-generator, #learning-path-generator, #content-library {
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    align-items: center; /* Align items vertically */
+    gap: 0.8rem; /* Add spacing between elements */
+}
+
+#quiz-generator button, 
+#learning-path-generator button, 
+#content-library button {
+    padding: 0.7rem 1.2rem;
+    background-color: #28a745; /* Green */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-left: auto; /* Push button to the right */
+}
+#quiz-generator button:hover, 
+#learning-path-generator button:hover, 
+#content-library button:hover {
+    background-color: #218838; /* Darker green */
+}
+
+#content-library button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Display Sections (Quiz, LP, Content, Progress) */
+#quiz-display, #learning-path-display, #content-display, #progress-display {
+    margin-top: 1.5rem;
+}
+
+#quiz-details, #lp-details {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.question, .result-item {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+}
+
+.question .options label {
+    display: block; /* Stack radio buttons */
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+}
+.question .options input[type="radio"] {
+    margin-right: 0.5rem;
+}
+
+.result-item.correct {
+    border-left: 5px solid #28a745; /* Green border for correct */
+    background-color: #e9f7ec;
+}
+
+.result-item.incorrect {
+    border-left: 5px solid #dc3545; /* Red border for incorrect */
+    background-color: #fce8e6;
+}
+
+#submit-quiz-btn {
+     padding: 0.7rem 1.5rem;
+    background-color: #007bff; 
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-top: 1rem;
+    display: block; /* Make it block level */
+    width: fit-content; /* Size to content */
+}
+#submit-quiz-btn:hover {
+    background-color: #0056b3;
+}
+
+#lp-steps ol {
+    padding-left: 20px; /* Indent ordered list */
+}
+
+#lp-steps li {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed #ced4da;
+}
+#lp-steps li:last-child {
+    border-bottom: none;
+}
+
+#content-body p {
+    margin-bottom: 1rem;
+}
+
+#content-body h4 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+#content-body ul {
+    list-style: disc;
+    padding-left: 20px;
+}
+
+#progress-list ul {
+    list-style: none; /* Remove default bullets */
+    padding-left: 0;
+}
+#progress-list li {
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+#progress-list small {
+    color: #6c757d;
+    display: block; /* Put date on new line */
+    margin-top: 0.3rem;
+}
+
+/* Footer */
+footer {
+    background: #343a40; /* Darker gray */
+    color: #fff;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: auto; /* Push footer to bottom */
+    font-size: 0.9em;
+}
+
+/* Modal Styling */
+.modal {
+    /* display: none; /* Controlled by JS */
+    position: fixed; 
+    z-index: 1000; /* Ensure modal is on top */
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.5); /* Darker overlay */
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; 
+    padding: 25px 30px;
+    border: none; /* Remove border */
+    border-radius: 8px;
+    width: 90%; 
+    max-width: 450px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 32px;
+    font-weight: bold;
+    line-height: 1; /* Adjust line height */
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#email-password-auth input {
+    width: 100%; /* Use full width */
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+}
+
+#email-password-auth button,
+#google-signin-button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#email-signin-button {
+     background-color: #007bff;
+}
+#email-signin-button:hover {
+     background-color: #0056b3;
+}
+
+#email-signup-button {
+    background-color: #6c757d; /* Gray */
+}
+#email-signup-button:hover {
+    background-color: #5a6268;
+}
+
+#google-signin-button {
+    background-color: #dd4b39;
+}
+#google-signin-button:hover {
+    background-color: #c23321;
+}
+
+#auth-error {
+    margin-top: 1rem;
+    font-size: 0.9em;
+}
+
+/* Responsive Adjustments (Example) */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    header h1 {
+        margin-bottom: 0.5rem;
+    }
+    #auth-container {
+        margin-top: 0.5rem;
+    }
+    main {
+        padding: 1rem;
+    }
+    section {
+        padding: 1rem;
+    }
+    #quiz-generator, #learning-path-generator, #content-library {
+        flex-direction: column; /* Stack elements vertically */
+        align-items: stretch; /* Stretch items to full width */
+    }
+     #quiz-generator button, 
+    #learning-path-generator button, 
+    #content-library button {
+        margin-left: 0; /* Reset margin */
+        margin-top: 0.8rem;
+    }
+    .modal-content {
+        width: 95%;
+    }
+} 
