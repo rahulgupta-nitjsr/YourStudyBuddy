@@ -1,19 +1,26 @@
 // Basic App Logic & Service Worker Registration
 
 // --- DOM Elements ---
-const authButton = document.getElementById('auth-button');
-const authModal = document.getElementById('auth-modal');
-const closeModalButton = document.querySelector('.close-button'); // Assuming only one close button
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const emailSignInButton = document.getElementById('email-signin-button');
-const emailSignUpButton = document.getElementById('email-signup-button');
-const googleSignInButton = document.getElementById('google-signin-button');
-const authErrorElement = document.getElementById('auth-error');
-const userInfoElement = document.getElementById('user-info');
+// const authButton = document.getElementById('auth-button'); // Removed
+// const authModal = document.getElementById('auth-modal'); // Removed
+// const closeModalButton = document.querySelector('.close-button'); // Removed
+// const emailInput = document.getElementById('email'); // Removed
+// const passwordInput = document.getElementById('password'); // Removed
+// const emailSignInButton = document.getElementById('email-signin-button'); // Removed
+// const emailSignUpButton = document.getElementById('email-signup-button'); // Removed
+// const googleSignInButton = document.getElementById('google-signin-button'); // Removed
+// const authErrorElement = document.getElementById('auth-error'); // Removed
+// const userInfoElement = document.getElementById('user-info'); // Removed
 const appContentElement = document.getElementById('app-content');
-const loggedOutView = document.getElementById('logged-out-view');
-const loggedInView = document.getElementById('logged-in-view');
+// const loggedOutView = document.getElementById('logged-out-view'); // Renamed/Replaced
+// const loggedInView = document.getElementById('loggedInView'); // Renamed/Replaced
+
+// --- New Name Entry Elements (Add these IDs to index.html) ---
+const nameEntryView = document.getElementById('name-entry-view');
+const nameInput = document.getElementById('name-input');
+const startButton = document.getElementById('start-button');
+const welcomeMessageElement = document.getElementById('welcome-message'); // Element to show "Welcome, [Name]!"
+const mainAppView = document.getElementById('main-app-view'); // Container for the main app features
 
 // Quiz Generator Elements
 const subjectSelect = document.getElementById('subject');
@@ -58,26 +65,64 @@ const contentIndex = {
     "History": ["World War I", "The Roman Empire"]
 };
 
-// --- Firebase Auth Setup (Accessed from window) ---
-// Ensure Firebase is initialized in index.html before this script runs
-const { 
-    auth, 
-    onAuthStateChanged, 
-    GoogleAuthProvider, 
-    signInWithPopup, 
-    createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword, 
-    signOut, 
-    googleProvider 
+// --- Remove Firebase Auth Setup ---
+/*
+const {
+    auth,
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    googleProvider,
+    connectAuthEmulator
 } = window.firebaseAuth;
+*/
+
+// --- Firebase Database Setup (Keep for now, might be used for progress) ---
+const {
+    db, // Assuming db is the database instance
+    connectDatabaseEmulator // Add this import
+} = window.firebaseDb || {}; // Add default empty object in case it's not defined
 
 let currentQuizData = null; // To store the current quiz for submission
+let currentUserName = null; // Store the entered user name
 
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
-    initializeAuth();
+
+    // --- Connect to Emulators (Keep DB connection if needed) ---
+    try {
+        if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+            console.log("Connecting to Firebase Emulators...");
+            /* Remove Auth Emulator connection
+            if (auth && connectAuthEmulator) {
+                connectAuthEmulator(auth, "http://127.0.0.1:9099");
+                console.log("Auth Emulator connected.");
+            } else {
+                console.warn("Auth or connectAuthEmulator not available.");
+            }
+            */
+            if (db && connectDatabaseEmulator) {
+                connectDatabaseEmulator(db, "127.0.0.1", 9000);
+                console.log("Database Emulator connected.");
+            } else {
+                console.warn("Database or connectDatabaseEmulator not available.");
+            }
+        } else {
+            console.log("Not running on localhost, connecting to live Firebase services.");
+        }
+    } catch (error) {
+        console.error("Error connecting to emulators:", error);
+    }
+    // --------------------------
+
+    // initializeAuth(); // Removed
+    initializeApp(); // New initialization function
     initializeContentLibrary(); // Initialize content library interactions
     initializeProgressView(); // Initialize progress view interactions
+    initializeFeatureButtons(); // Add listeners for quiz/lp buttons etc.
 });
 
 // Register Service Worker
@@ -94,152 +139,87 @@ if ('serviceWorker' in navigator) {
     console.log('Service Worker not supported in this browser.');
 }
 
-// --- Auth Modal Logic ---
-function openAuthModal() {
-    authErrorElement.textContent = ''; // Clear previous errors
-    authModal.style.display = 'block';
+// --- Remove Auth Modal Logic ---
+/*
+function openAuthModal() { ... }
+function closeAuthModal() { ... }
+window.onclick = function(event) { ... }
+*/
+
+// --- Remove Authentication Logic ---
+/*
+function initializeAuth() { ... }
+function handleEmailSignUp() { ... }
+function handleEmailSignIn() { ... }
+function handleGoogleSignIn() { ... }
+function handleSignOut() { ... }
+*/
+
+// --- New App Initialization and Name Handling ---
+function initializeApp() {
+    // Check if a name is already stored (e.g., from sessionStorage if implemented)
+    // For now, just show the name entry view by default
+    showNameEntryView();
+
+    // Add listener for the start button
+    startButton?.addEventListener('click', handleStart);
 }
 
-function closeAuthModal() {
-    authModal.style.display = 'none';
-}
-
-// Close modal if clicked outside content
-window.onclick = function(event) {
-    if (event.target == authModal) {
-        closeAuthModal();
+function handleStart() {
+    const name = nameInput?.value.trim();
+    if (name) {
+        currentUserName = name;
+        console.log(`User started session as: ${currentUserName}`);
+        // Store name if needed (e.g., sessionStorage.setItem('userName', currentUserName);)
+        showMainAppView();
+    } else {
+        alert('Please enter your name to start.');
+        nameInput?.focus();
     }
 }
 
-// --- Authentication Logic ---
+// --- Simplified UI Update Functions ---
 
-function initializeAuth() {
-    // Listener for authentication state changes
-    onAuthStateChanged(auth, user => {
-        if (user) {
-            // User is signed in
-            console.log('User signed in:', user.email);
-            updateUIForLoggedInUser(user);
-            closeAuthModal();
-        } else {
-            // User is signed out
-            console.log('User signed out');
-            updateUIForLoggedOutUser();
-        }
-    });
+function showNameEntryView() {
+    if (nameEntryView) nameEntryView.style.display = 'block';
+    if (mainAppView) mainAppView.style.display = 'none';
+    if (welcomeMessageElement) welcomeMessageElement.textContent = '';
+    // Reset other app sections if necessary
+    if (quizDisplaySection) quizDisplaySection.style.display = 'none';
+    if (lpDisplaySection) lpDisplaySection.style.display = 'none';
+    if (contentDisplaySection) contentDisplaySection.style.display = 'none';
+    if (progressListElement) progressListElement.style.display = 'none';
+}
 
-    // --- Event Listeners ---
-    authButton.addEventListener('click', () => {
-        if (auth.currentUser) {
-            // If user is logged in, button acts as logout
-            handleSignOut();
-        } else {
-            // If user is logged out, button opens login modal
-            openAuthModal();
-        }
-    });
+function showMainAppView() {
+    if (nameEntryView) nameEntryView.style.display = 'none';
+    if (mainAppView) mainAppView.style.display = 'block';
+    if (welcomeMessageElement) welcomeMessageElement.textContent = `Welcome, ${currentUserName}!`;
+}
 
-    closeModalButton?.addEventListener('click', closeAuthModal);
-    googleSignInButton?.addEventListener('click', handleGoogleSignIn);
-    emailSignInButton?.addEventListener('click', handleEmailSignIn);
-    emailSignUpButton?.addEventListener('click', handleEmailSignUp);
+// Add event listeners for core app features
+function initializeFeatureButtons() {
     generateQuizButton?.addEventListener('click', fetchAndDisplayQuiz);
     submitQuizButton?.addEventListener('click', submitQuiz);
     generateLpButton?.addEventListener('click', fetchAndDisplayLearningPath);
+    // View Content button listener is added in initializeContentLibrary
+    // View Progress button listener is added in initializeProgressView
 }
 
-function handleEmailSignUp() {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    authErrorElement.textContent = ''; // Clear errors
 
-    createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            // Signed up successfully
-            console.log('Signed up:', userCredential.user.email);
-            // UI update handled by onAuthStateChanged listener
-        })
-        .catch((error) => {
-            console.error("Sign up error:", error);
-            authErrorElement.textContent = error.message; 
-        });
-}
+// --- Remove Old UI Update Functions ---
+/*
+function updateUIForLoggedInUser(user) { ... }
+function updateUIForLoggedOutUser() { ... }
+*/
 
-function handleEmailSignIn() {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    authErrorElement.textContent = ''; // Clear errors
-
-    signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            // Signed in successfully
-            console.log('Signed in:', userCredential.user.email);
-            // UI update handled by onAuthStateChanged listener
-        })
-        .catch((error) => {
-            console.error("Sign in error:", error);
-            authErrorElement.textContent = error.message;
-        });
-}
-
-function handleGoogleSignIn() {
-    authErrorElement.textContent = ''; // Clear errors
-    signInWithPopup(auth, googleProvider)
-        .then((result) => {
-            // Successful Google Sign-In
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            const token = credential.accessToken;
-            const user = result.user;
-            console.log('Google Sign-In success:', user.displayName);
-            // UI update handled by onAuthStateChanged listener
-        }).catch((error) => {
-            // Handle Errors here.
-            console.error("Google Sign-in error:", error);
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            const email = error.customData?.email;
-            const credential = GoogleAuthProvider.credentialFromError(error);
-            authErrorElement.textContent = errorMessage;
-        });
-}
-
-function handleSignOut() {
-    signOut(auth).then(() => {
-        // Sign-out successful.
-        console.log('Sign out successful');
-        // UI update handled by onAuthStateChanged listener
-    }).catch((error) => {
-        console.error("Sign out error:", error);
-        alert('Error signing out.'); // Simple feedback
-    });
-}
-
-// --- UI Update Functions ---
-
-function updateUIForLoggedInUser(user) {
-    userInfoElement.textContent = `Welcome, ${user.displayName || user.email}!`;
-    authButton.textContent = 'Logout';
-    loggedOutView.style.display = 'none';
-    loggedInView.style.display = 'block';
-}
-
-function updateUIForLoggedOutUser() {
-    userInfoElement.textContent = '';
-    authButton.textContent = 'Login / Sign Up';
-    loggedInView.style.display = 'none';
-    loggedOutView.style.display = 'block';
-    quizDisplaySection.style.display = 'none'; // Hide quiz section on logout
-    lpDisplaySection.style.display = 'none'; // Hide learning path section on logout
-    contentDisplaySection.style.display = 'none'; // Hide content section on logout
-    progressListElement.style.display = 'none'; // Hide progress list on logout
-}
-
-// --- Quiz Logic ---
+// --- Quiz Logic (Updated) ---
 
 async function fetchAndDisplayQuiz() {
-    if (!auth.currentUser) {
-        alert("Please log in to generate a quiz.");
-        openAuthModal();
+    // Check if user has entered a name instead of auth state
+    if (!currentUserName) {
+        alert("Please enter your name first.");
+        showNameEntryView(); // Redirect to name entry
         return;
     }
 
@@ -261,16 +241,19 @@ async function fetchAndDisplayQuiz() {
     submitQuizButton.style.display = 'none';
 
     try {
-        const idToken = await auth.currentUser.getIdToken();
+        // Remove getIdToken
+        // const idToken = await auth.currentUser.getIdToken();
         console.log(`Fetching quiz for Subject: ${subject}, Topic: ${topic}, Difficulty: ${difficulty}`);
-        
+
         const response = await fetch('/api/quiz', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${idToken}` // Include auth token
+                'Content-Type': 'application/json'
+                // Remove Authorization header
+                // 'Authorization': `Bearer ${idToken}`
             },
-            body: JSON.stringify({ subject, topic, difficulty, num_questions: 5 }) // Request 5 questions
+            // Add userName to the body if backend needs it
+            body: JSON.stringify({ subject, topic, difficulty, num_questions: 5 /*, userName: currentUserName */ })
         });
 
         if (!response.ok) {
@@ -337,7 +320,7 @@ function submitQuiz() {
         const selectedOption = document.querySelector(`input[name="question-${index}"]:checked`);
         const userAnswer = selectedOption ? selectedOption.value : null;
         userAnswers.push({ question: q.question_text, answer: userAnswer });
-        
+
         const isCorrect = userAnswer === q.correct_answer;
         if (isCorrect) {
             score++;
@@ -360,17 +343,21 @@ function submitQuiz() {
         ${resultsHTML.join('')}
     `;
 
-    // Hide submit button, maybe show a 'New Quiz' button?
     submitQuizButton.style.display = 'none';
 
-    // TODO: Save progress to backend
+    // Save progress
     saveProgressToBackend(currentQuizData, score, userAnswers);
 }
 
+
+// saveProgressToBackend updated
 async function saveProgressToBackend(quizData, score, userAnswers) {
-    if (!auth.currentUser) return; // Should be logged in to save
+    // Check for username instead of auth user
+    if (!currentUserName) return;
 
     const progressData = {
+        // Use userName for associating progress if needed by backend
+        userName: currentUserName,
         quizId: `${quizData.subject}-${quizData.topic}-${Date.now()}`, // Simple unique ID
         subject: quizData.subject,
         topic: quizData.topic,
@@ -382,12 +369,14 @@ async function saveProgressToBackend(quizData, score, userAnswers) {
     };
 
     try {
-        const idToken = await auth.currentUser.getIdToken();
+        // Remove getIdToken
+        // const idToken = await auth.currentUser.getIdToken();
         const response = await fetch('/api/progress', {
             method: 'POST',
             headers: {
-                 'Content-Type': 'application/json',
-                 'Authorization': `Bearer ${idToken}`
+                 'Content-Type': 'application/json'
+                 // Remove Authorization header
+                 // 'Authorization': `Bearer ${idToken}`
             },
             body: JSON.stringify(progressData)
         });
@@ -406,21 +395,20 @@ async function saveProgressToBackend(quizData, score, userAnswers) {
         // Optionally show an error message to the user
         alert("Could not save your quiz progress.");
     }
-
 }
 
-// --- Learning Path Logic ---
+// --- Learning Path Logic (Updated) ---
 
 async function fetchAndDisplayLearningPath() {
-    if (!auth.currentUser) {
-        alert("Please log in to generate a learning path.");
-        openAuthModal();
+    // Check for username
+    if (!currentUserName) {
+        alert("Please enter your name first.");
+        showNameEntryView();
         return;
     }
 
     const subject = lpSubjectSelect.value;
     const goal = lpGoalInput.value;
-    // const knowledge = document.getElementById('lp-knowledge')?.value || 'beginner'; // If knowledge input is added
 
     if (!goal) {
         alert("Please enter a learning goal.");
@@ -434,16 +422,19 @@ async function fetchAndDisplayLearningPath() {
     lpDetailsElement.innerHTML = '';
 
     try {
-        const idToken = await auth.currentUser.getIdToken();
+        // Remove getIdToken
+        // const idToken = await auth.currentUser.getIdToken();
         console.log(`Fetching learning path for Subject: ${subject}, Goal: ${goal}`);
-        
+
         const response = await fetch('/api/learning-path', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${idToken}`
+                'Content-Type': 'application/json'
+                // Remove Authorization header
+                // 'Authorization': `Bearer ${idToken}`
             },
-            body: JSON.stringify({ subject, goal /*, knowledge */ }) // Add knowledge if input exists
+            // Add userName if needed by backend
+            body: JSON.stringify({ subject, goal /*, userName: currentUserName */ })
         });
 
         if (!response.ok) {
@@ -489,7 +480,7 @@ function renderLearningPath(pathData) {
     lpDisplaySection.style.display = 'block'; // Ensure section is visible
 }
 
-// --- Content Library Logic ---
+// --- Content Library Logic (Updated) ---
 
 function initializeContentLibrary() {
     contentSubjectSelect?.addEventListener('change', handleSubjectChange);
@@ -523,9 +514,10 @@ function handleSubjectChange() {
 }
 
 async function fetchAndDisplayContent() {
-    if (!auth.currentUser) {
-        alert("Please log in to view content.");
-        openAuthModal();
+    // Check for username
+    if (!currentUserName) {
+        alert("Please enter your name first.");
+        showNameEntryView();
         return;
     }
 
@@ -543,23 +535,23 @@ async function fetchAndDisplayContent() {
     contentDisplaySection.style.display = 'block';
 
     try {
-        const idToken = await auth.currentUser.getIdToken();
+        // Remove getIdToken
+        // const idToken = await auth.currentUser.getIdToken();
         console.log(`Fetching content for Subject: ${subject}, Topic: ${topic}`);
-        
-        // Encode topic and subject for URL path
+
         const encodedSubject = encodeURIComponent(subject);
         const encodedTopic = encodeURIComponent(topic);
-        
+
         const response = await fetch(`/api/content/${encodedSubject}/${encodedTopic}`, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${idToken}` // Include auth token
+                // Remove Authorization header
+                // 'Authorization': `Bearer ${idToken}`
             }
         });
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response.'}));
-             // Handle 404 specifically? Backend currently returns placeholder on 404.
             throw new Error(`HTTP error! status: ${response.status} - ${errorData.error || response.statusText}`);
         }
 
@@ -569,7 +561,6 @@ async function fetchAndDisplayContent() {
         if (contentData && contentData.content) {
              renderContent(contentData.content);
         } else {
-             // This case might not be reached if backend returns placeholder
              throw new Error("Received empty or invalid content data from server.");
         }
 
@@ -612,16 +603,17 @@ function renderContent(content) {
     contentDisplaySection.style.display = 'block';
 }
 
-// --- Progress Display Logic ---
+// --- Progress Display Logic (Updated) ---
 
 function initializeProgressView() {
      viewProgressButton?.addEventListener('click', fetchAndDisplayProgress);
 }
 
 async function fetchAndDisplayProgress() {
-    if (!auth.currentUser) {
-        alert("Please log in to view your progress.");
-        openAuthModal();
+    // Check for username
+    if (!currentUserName) {
+        alert("Please enter your name first.");
+        showNameEntryView();
         return;
     }
 
@@ -629,13 +621,17 @@ async function fetchAndDisplayProgress() {
     progressListElement.style.display = 'block';
 
     try {
-        const idToken = await auth.currentUser.getIdToken();
-        console.log("Fetching user progress...");
-        
-        const response = await fetch('/api/progress', {
+        // Remove getIdToken
+        // const idToken = await auth.currentUser.getIdToken();
+        // Add userName as query parameter if backend needs it
+        console.log(`Fetching progress for user: ${currentUserName}`);
+
+        // Adjust API endpoint if needed (e.g., /api/progress?user=...)
+        const response = await fetch('/api/progress', { // Or `/api/progress?userName=${encodeURIComponent(currentUserName)}`
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${idToken}`
+                // Remove Authorization header
+                // 'Authorization': `Bearer ${idToken}`
             }
         });
 
@@ -647,7 +643,8 @@ async function fetchAndDisplayProgress() {
         const progressData = await response.json();
         console.log('Progress data received:', progressData);
 
-        renderProgress(progressData.progress); // Assuming backend returns { progress: { key1: data1, key2: data2 } }
+        // Assuming backend filters by userName or returns all progress for simplicity now
+        renderProgress(progressData.progress);
 
     } catch (error) {
         console.error('Error fetching or displaying progress:', error);
@@ -682,7 +679,10 @@ function renderProgress(progress) {
     progressListElement.innerHTML = progressHTML;
 }
 
-// --- Placeholder for API calls (to be implemented later) ---
+// --- Remove Placeholder API calls ---
+/*
+async function fetchQuiz(subject, topic) { ... }
+*/
 
 // Example function structure
 // async function fetchQuiz(subject, topic) {

@@ -28,6 +28,18 @@ For detailed product requirements and the initial project overview, please refer
 *   **📊 Progress Tracking:** Save quiz results (score, topic, timestamp) and view past performance.
 *   **📱 PWA:** Basic Progressive Web App features (manifest, service worker) for installability and potential offline use.
 
+## 📸 Screenshots
+
+Here's a quick look at the app:
+
+**Welcome / Name Entry:**
+
+![Welcome Page](./docs/images/Welcome_Page.jpg)
+
+**Main Application View:**
+
+![Main Page](./docs/images/Main_Page.jpg)
+
 ## 🛠️ Tech Stack
 
 *   **Backend:** Python, Flask

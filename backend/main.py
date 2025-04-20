@@ -141,7 +141,7 @@ def home():
     return jsonify(message="Welcome to the Your Study Buddy API!")
 
 @app.route('/api/quiz', methods=['POST'])
-@token_required # Require authentication
+# @token_required # Require authentication <-- Comment out or remove this line
 def generate_quiz():
     # uid is implicitly verified by @token_required
     if not model:

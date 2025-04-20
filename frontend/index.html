@@ -15,24 +15,23 @@
         <nav>
             <!-- Navigation links can go here -->
         </nav>
-        <div id="auth-container">
-            <!-- Auth buttons will be dynamically updated -->
-            <span id="user-info"></span>
-            <button id="auth-button">Login</button>
-        </div>
     </header>
 
     <main id="app-content">
-        <!-- Content changes based on auth state -->
-        <div id="logged-out-view">
-             <h2>Welcome!</h2>
-             <p>Please log in or sign up to start your personalized learning experience.</p>
+        <!-- New Name Entry View -->
+        <div id="name-entry-view" style="text-align: center; margin-top: 2rem;">
+            <h2>Welcome!</h2>
+            <p>Please enter your name to start your session:</p>
+            <input type="text" id="name-input" placeholder="Your Name" required style="padding: 8px; margin-right: 5px;">
+            <button id="start-button" style="padding: 8px 15px;">Start Studying</button>
         </div>
 
-        <div id="logged-in-view" style="display: none;"> <!-- Initially hidden -->
-            <h2>Your Dashboard</h2>
-            <p>Ready to start learning?</p>
+        <!-- Renamed logged-in-view to main-app-view and initially hidden -->
+        <div id="main-app-view" style="display: none;">
+            <!-- Add Welcome Message Area -->
+            <h2 id="welcome-message" style="text-align: center; margin-bottom: 1.5rem;"></h2>
 
+            <!-- Existing app sections (Quiz, LP, Content, Progress) go here -->
             <section id="quiz-generator">
                 <h3>Generate a New Quiz</h3>
                 <label for="subject">Subject:</label>
@@ -139,40 +138,23 @@
         </div>
     </main>
 
-    <!-- Auth Modal (Hidden by default) -->
-    <div id="auth-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close-button" onclick="closeAuthModal()">&times;</span>
-            <h2>Login or Sign Up</h2>
-            <div id="email-password-auth">
-                <input type="email" id="email" placeholder="Email" required>
-                <input type="password" id="password" placeholder="Password" required>
-                <button id="email-signin-button">Sign In</button>
-                <button id="email-signup-button">Sign Up</button>
-            </div>
-            <hr>
-            <button id="google-signin-button">Sign in with Google</button>
-            <p id="auth-error" style="color: red;"></p>
-        </div>
-    </div>
-
     <footer>
         <p>&copy; 2024 Your Study Buddy</p>
     </footer>
 
     <!-- Firebase SDK -->
-    <!-- Using Firebase v9+ modular SDK -->
+    <!-- Remove Firebase Auth imports, keep core app and database if needed -->
     <script type="module">
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        // Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        // import { getDatabase } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+        // Remove Auth imports:
+        // import { getAuth, ... } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 
-        // Your web app's Firebase configuration (from firebase-config.js)
-        // TODO: Replace with your actual Firebase config values
+        // Keep Database import if you plan to use it for progress tracking without Auth
+        import { getDatabase, connectDatabaseEmulator } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+        // Your Firebase configuration
         const firebaseConfig = {
+          // KEEP YOUR CONFIG DETAILS HERE
           apiKey: "YOUR_API_KEY",
           authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
           databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
@@ -182,16 +164,21 @@
           appId: "YOUR_APP_ID"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase App
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        // const database = getDatabase(app); // Initialize if needed
-        const googleProvider = new GoogleAuthProvider();
 
-        // Make auth object globally accessible or pass to app.js
-        window.firebaseAuth = { auth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, googleProvider };
+        // Remove Auth initialization
+        // const auth = getAuth(app);
+        // const googleProvider = new GoogleAuthProvider();
+
+        // Initialize Database (keep if needed for progress)
+        const db = getDatabase(app);
+
+        // Make necessary objects globally accessible for app.js
+        // window.firebaseAuth = { ... }; // Removed
+        window.firebaseDb = { db, connectDatabaseEmulator }; // Pass DB and emulator function
     </script>
 
-    <script type="module" src="js/app.js"></script> <!-- Changed to type module -->
+    <script type="module" src="js/app.js"></script>
 </body>
 </html> 

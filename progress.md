@@ -58,4 +58,34 @@ This document tracks the development progress of the Your Study Buddy PWA.
 - [x] Documentation (`README.md` created)
 - [ ] PWA Enhancements (Service worker offline caching needs improvement)
 
-*(This file reflects the state at the end of the initial build process.)* 
+*(This file reflects the state at the end of the initial build process.)*
+
+## Post-Initial Build Updates
+
+- **Emulator Setup & Troubleshooting:**
+    - Initialized Firebase emulators (`firebase init emulators`), initially only selecting Hosting.
+    - Attempted to start `hosting,auth,database` emulators, failed as only hosting was configured.
+    - Manually edited `firebase.json` to add `auth` (port 9099) and `database` (port 9000) emulator configurations.
+    - Added `database.rules.json` with permissive rules (`.read: true`, `.write: true`) and linked it in `firebase.json`.
+    - Encountered "port already in use" errors when starting emulators.
+    - Used `netstat -ano` and `taskkill /PID ... /F` to find and terminate processes blocking ports 5000, 9000, and 9099.
+    - Successfully restarted emulators (`firebase emulators:start`).
+
+- **Authentication Flow Change:**
+    - Removed Firebase Authentication (Auth UI, modals, Firebase Auth SDK initialization, backend token verification logic is assumed to be removed/bypassed on backend side).
+    - Modified `frontend/index.html`:
+        - Removed auth modal, login button, user info display.
+        - Added a "name entry" view (`#name-entry-view`) with an input (`#name-input`) and start button (`#start-button`).
+        - Replaced `#logged-in-view`/`#logged-out-view` with `#main-app-view` (initially hidden).
+        - Added a welcome message element (`#welcome-message`) inside `#main-app-view`.
+        - Updated Firebase SDK script block to remove Auth imports/initialization but keep Database.
+    - Modified `frontend/js/app.js`:
+        - Removed Firebase Auth imports and related functions (`initializeAuth`, `handle...`, `updateUI...`).
+        - Removed Auth emulator connection logic.
+        - Added `currentUserName` variable.
+        - Added `initializeApp`, `handleStart`, `showNameEntryView`, `showMainAppView` functions.
+        - Added `initializeFeatureButtons` function.
+        - Modified API call functions (`fetchAndDisplayQuiz`, `saveProgressToBackend`, etc.) to remove auth token logic and check for `currentUserName` instead.
+
+- **Frontend Emulator Connection:**
+    - Added code to `frontend/js/app.js` to connect to the Database emulator (`connectDatabaseEmulator`) when running on localhost. 
